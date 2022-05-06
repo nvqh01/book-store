@@ -6,13 +6,14 @@ import helmet from "helmet";
 import createError from "http-errors";
 import morgan from "morgan";
 
-import { conn } from "./config/db.config";
+import db from "./config/db.config";
 import errorHandle from "./api/middlewares/errorHandle";
 import router from "./api/routes/index";
 
 const app = express();
 
 // connect database
+db.connect();
 
 // use cors
 app.use(cors());

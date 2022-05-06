@@ -1,32 +1,19 @@
 import dotenv from "dotenv";
+import createError from "http-errors";
 import mongoose from "mongoose";
 
 dotenv.config();
 
-const conn = mongoose
-  .connect(`${process.env.MONGODB_URL}`)
-  .then(() => {
+const connect = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
     console.log("Success to connect database !");
-  })
-  .catch(() => {
-    console.log("Fail to connect database !");
-  });
+  } catch (err) {
+    console.log(`Fail to connect database ! \nError: ${err.message}`);
+  }
+};
 
-mongoose.connection.on("connected", () => {
-  console.log("Server is connecting database !");
-});
-
-mongoose.connection.on("error", (err) => {
-  console.log(`Error: ${err.message}`);
-});
-
-mongoose.connection.on("disconnected", () => {
-  console.log("Server disconnected database !");
-});
-
-process.on("SIGNINT", async () => {
-  await mongoose.connection.close();
-  process.exit(0);
-});
-
-module.exports = { conn };
+module.exports = { connect };
