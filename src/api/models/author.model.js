@@ -7,6 +7,7 @@ const authorSchema = new mongoose.Schema({
   },
   year: {
     type: Number,
+    required: true,
   },
   books: [
     {
