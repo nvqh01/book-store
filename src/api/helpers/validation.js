@@ -1,7 +1,7 @@
 import Joi from "joi";
 
 const validation = {
-  userValidate: (data) => {
+  validateUser: (data) => {
     const userSchema = Joi.object({
       username: Joi.string()
         .pattern(new RegExp("gmail.com$"))

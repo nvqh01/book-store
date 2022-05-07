@@ -15,7 +15,7 @@ const userController = {
     try {
       const { username, password } = req.body;
 
-      const { error } = validation.userValidate({ username, password });
+      const { error } = validation.validateUser({ username, password });
 
       if (error) {
         next(createError(error.details[0].message));
