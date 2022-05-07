@@ -1,12 +1,8 @@
-import dotenv from "dotenv";
-import createError from "http-errors";
 import mongoose from "mongoose";
 
-dotenv.config();
-
-const connect = async () => {
+const connect = async (uri) => {
   try {
-    await mongoose.connect(process.env.MONGODB_URL, {
+    await mongoose.connect(uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });

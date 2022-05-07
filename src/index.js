@@ -10,10 +10,12 @@ import db from "./config/db.config";
 import errorHandle from "./api/middlewares/errorHandle";
 import router from "./api/routes/index";
 
+dotenv.config();
+
 const app = express();
 
 // connect database
-db.connect();
+db.connect(process.env.MONGODB_URL);
 
 // use cors
 app.use(cors());
@@ -42,7 +44,6 @@ app.use((req, res, next) => {
 app.use(errorHandle);
 
 // use dotenv
-dotenv.config();
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
