@@ -1,10 +1,38 @@
 import createError from "http-errors";
 import { User } from "../models/index";
 import validation from "../helpers/validation";
+import { use } from "bcrypt/promises";
 
 const userController = {
-  login: (req, res, next) => {
-    res.send(req.body);
+  login: async (req, res, next) => {
+    try {
+      const { error } = validation.validateUser(req.body);
+
+      if (error) {
+        next(createError(error.details[0].message));
+      }
+
+      const { username, password } = req.body;
+
+      const user = await User.findOne({ username });
+
+      if (!user) {
+        next(createError.NotFound("Username is not found !"));
+      }
+
+      const isValid = await user.isValidPassword(password);
+
+      if (!isValid) {
+        next(createError.Unauthorized());
+      }
+
+      res.status(200).json({
+        message: "Login Successfully !",
+        data: user,
+      });
+    } catch (err) {
+      next(err);
+    }
   },
 
   logout: (req, res, next) => {},
@@ -13,13 +41,13 @@ const userController = {
 
   register: async (req, res, next) => {
     try {
-      const { username, password } = req.body;
-
-      const { error } = validation.validateUser({ username, password });
+      const { error } = validation.validateUser(req.body);
 
       if (error) {
         next(createError(error.details[0].message));
       }
+
+      const { username, password } = req.body;
 
       const isExit = await User.findOne({ username });
 
@@ -35,7 +63,7 @@ const userController = {
         data: savedUser,
       });
     } catch (err) {
-      next(createError(err));
+      next(err);
     }
   },
 };
