@@ -1,7 +1,7 @@
 import createError from "http-errors";
 import { User } from "../models/index";
 import validation from "../helpers/validation";
-import { use } from "bcrypt/promises";
+import token from "../services/token.service";
 
 const userController = {
   login: async (req, res, next) => {
@@ -26,9 +26,16 @@ const userController = {
         next(createError.Unauthorized());
       }
 
+      const accessToken = await token.generateToken({
+        _id: user._id,
+        username,
+        password,
+      });
+
       res.status(200).json({
         message: "Login Successfully !",
         data: user,
+        accessToken,
       });
     } catch (err) {
       next(err);
