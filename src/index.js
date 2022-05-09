@@ -8,6 +8,7 @@ import morgan from "morgan";
 
 import db from "./config/db.config";
 import errorHandle from "./api/middlewares/errorHandle";
+import redis from "./config/redis.config";
 import router from "./api/routes/index";
 
 dotenv.config();
@@ -16,6 +17,7 @@ const app = express();
 
 // connect database
 db.connect(process.env.MONGODB_URL);
+redis.connect();
 
 // use cors
 app.use(cors());

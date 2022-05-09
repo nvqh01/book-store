@@ -42,7 +42,23 @@ const userController = {
     }
   },
 
-  logout: (req, res, next) => {},
+  logout: async (req, res, next) => {
+    try {
+      const { refreshToken } = req.body;
+
+      if (!refreshToken) {
+        next(new Error("Refresh token is empty !"));
+      }
+
+      const message = await token.logout(refreshToken);
+
+      res.status(200).json({
+        message,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
 
   refreshToken: async (req, res, next) => {
     try {

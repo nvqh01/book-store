@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import JWT from "jsonwebtoken";
+import redis from "../../config/redis.config";
 
 dotenv.config();
 
@@ -10,7 +11,7 @@ const token = {
         payload,
         process.env.ACCESS_TOKEN_SECRET,
         {
-          expiresIn: "10m",
+          expiresIn: "20s",
         }
       );
 
@@ -29,6 +30,10 @@ const token = {
       if (!refreshToken) {
         throw new Error("Fail to generate refresh token !");
       }
+
+      await redis.set(payload._id.toString(), refreshToken, {
+        EX: 3 * 24 * 60 * 60,
+      });
 
       return [accessToken, refreshToken];
     } catch (err) {
@@ -65,12 +70,28 @@ const token = {
       );
 
       if (!payload) {
-        next("Payload is empty !");
+        throw new Error("Payload is empty !");
+      }
+
+      const reply = await redis.get(payload._id);
+
+      if (reply !== refreshToken) {
+        throw new Error("Refresh token is not valid !");
       }
 
       return payload;
     } catch (err) {
-      next(err);
+      throw new Error(err.message);
+    }
+  },
+
+  logout: async (refreshToken) => {
+    try {
+      const { _id } = await token.verifyRefreshToken(refreshToken);
+      await redis.del(_id.toString());
+      return "Logout !";
+    } catch (err) {
+      throw new Error(err.message);
     }
   },
 };
