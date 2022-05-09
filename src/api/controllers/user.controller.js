@@ -26,16 +26,16 @@ const userController = {
         next(createError.Unauthorized());
       }
 
-      const accessToken = await token.generateToken({
+      const [accessToken, refreshToken] = await token.generateToken({
         _id: user._id,
         username,
-        password,
       });
 
       res.status(200).json({
         message: "Login Successfully !",
         data: user,
         accessToken,
+        refreshToken,
       });
     } catch (err) {
       next(err);
@@ -44,7 +44,29 @@ const userController = {
 
   logout: (req, res, next) => {},
 
-  refreshToken: (req, res, next) => {},
+  refreshToken: async (req, res, next) => {
+    try {
+      const { refreshToken } = req.body;
+
+      if (!refreshToken) {
+        next(new Error("Refresh token is empty !"));
+      }
+
+      const { _id, username } = await token.verifyRefreshToken(refreshToken);
+      const [accessToken, refrToken] = await token.generateToken({
+        _id,
+        username,
+      });
+
+      res.status(200).json({
+        message: "Refresh Token Successfully !",
+        accessToken,
+        refrToken,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
 
   register: async (req, res, next) => {
     try {
@@ -65,9 +87,16 @@ const userController = {
       const newUser = new User({ username, password });
       const savedUser = await newUser.save();
 
+      const [accessToken, refreshToken] = await token.generateToken({
+        _id: user._id,
+        username,
+      });
+
       res.status(200).json({
         message: "Success to register !",
         data: savedUser,
+        accessToken,
+        refreshToken,
       });
     } catch (err) {
       next(err);

@@ -20,7 +20,8 @@
     "joi": "^17.6.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.3.2",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "redis": "^4.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.17.10",

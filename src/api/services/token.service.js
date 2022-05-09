@@ -6,21 +6,37 @@ dotenv.config();
 const token = {
   generateToken: async (payload) => {
     try {
-      const token = await JWT.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "1h",
-      });
+      const accessToken = await JWT.sign(
+        payload,
+        process.env.ACCESS_TOKEN_SECRET,
+        {
+          expiresIn: "10m",
+        }
+      );
 
-      if (!token) {
-        throw new Error("Fail to generate token !");
+      if (!accessToken) {
+        throw new Error("Fail to generate access token !");
       }
 
-      return token;
+      const refreshToken = await JWT.sign(
+        payload,
+        process.env.REFRESH_TOKEN_SECRET,
+        {
+          expiresIn: "3d",
+        }
+      );
+
+      if (!refreshToken) {
+        throw new Error("Fail to generate refresh token !");
+      }
+
+      return [accessToken, refreshToken];
     } catch (err) {
       throw new Error(err);
     }
   },
 
-  verifyToken: async (req, res, next) => {
+  verifyAccessToken: async (req, res, next) => {
     try {
       if (!req.headers["authorization"]) {
         next(new Error("Token is not valid !"));
@@ -36,6 +52,23 @@ const token = {
 
       req.payload = payload;
       next();
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  verifyRefreshToken: async (refreshToken) => {
+    try {
+      const payload = await JWT.verify(
+        refreshToken,
+        process.env.REFRESH_TOKEN_SECRET
+      );
+
+      if (!payload) {
+        next("Payload is empty !");
+      }
+
+      return payload;
     } catch (err) {
       next(err);
     }
