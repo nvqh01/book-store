@@ -19,6 +19,27 @@ const token = {
       throw new Error(err);
     }
   },
+
+  verifyToken: async (req, res, next) => {
+    try {
+      if (!req.headers["authorization"]) {
+        next(new Error("Token is not valid !"));
+      }
+
+      const authHeader = req.headers["authorization"];
+      const token = authHeader.split(" ")[1];
+      const payload = await JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
+
+      if (!payload) {
+        next("Payload is empty !");
+      }
+
+      req.payload = payload;
+      next();
+    } catch (err) {
+      next(err);
+    }
+  },
 };
 
 module.exports = token;

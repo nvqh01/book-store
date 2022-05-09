@@ -1,10 +1,14 @@
 import express from "express";
 
 import { bookController } from "../controllers/index";
+import token from "../services/token.service";
 
 const router = express.Router();
 
-router.route("/").post(bookController.addBook).get(bookController.getAllBooks);
+router
+  .route("/")
+  .post(bookController.addBook)
+  .get(token.verifyToken, bookController.getAllBooks);
 
 router
   .route("/:id")
