@@ -1,74 +1,80 @@
+import ApiError from "../helpers/ApiError";
+import catchAsync from "../helpers/catchAsync";
 import createError from "http-errors";
 import { Author, Book } from "../models/index";
 
-const bookController = {
-  addBook: async (req, res, next) => {
-    try {
-      const newBook = new Book(req.body);
-      const savedBook = await newBook.save();
-      if (req.body.author) {
-        const author = Author.findById(req.body.author);
-        await author.updateOne({ $push: { books: savedBook.id } });
-      }
-      res.status(200).json({
-        message: "Success to add a book !",
-        data: savedBook,
-      });
-    } catch {
-      next(createError.InternalServerError("Fail to add a book !"));
-    }
-  },
+// Add a book
+const addBook = catchAsync(async (req, res, next) => {
+  if (!req.body) {
+    next(
+      new ApiError(createError.BadRequest("Please enter full information !"))
+    );
+  }
+  const newBook = new Book(req.body);
+  const savedBook = await newBook.save();
+  if (req.body.author) {
+    const author = Author.findById(req.body.author);
+    await author.updateOne({ $push: { books: savedBook.id } });
+  }
+  res.status(200).json({
+    message: "Add a book successfully !",
+    data: savedBook,
+  });
+});
 
-  deleteBook: async (req, res, next) => {
-    try {
-      await Author.updateMany(
-        { books: req.params.id },
-        { $pull: { books: req.params.id } }
-      );
-      await Book.findByIdAndDelete(req.params.id);
-      res.status(200).json({
-        message: "Success to delete a book !",
-      });
-    } catch {
-      next(createError.InternalServerError("Fail to delete a book !"));
-    }
-  },
+// Delete a book
+const deleteBook = catchAsync(async (req, res, next) => {
+  await Author.updateMany(
+    { books: req.params.id },
+    { $pull: { books: req.params.id } }
+  );
+  await Book.findByIdAndDelete(req.params.id);
+  res.status(200).json({
+    message: "Delete a book successfully !",
+  });
+});
 
-  getBook: async (req, res, next) => {
-    try {
-      const book = await Book.findById(req.params.id).populate("author");
-      res.status(200).json({
-        message: "Success to get a book !",
-        data: book,
-      });
-    } catch {
-      next(createError.InternalServerError("Fail to get a book !"));
-    }
-  },
+// Get a book
+const getBook = catchAsync(async (req, res, next) => {
+  const book = await Book.findById(req.params.id).populate("author");
+  res.status(200).json({
+    message: "Success to get a book !",
+    data: book,
+  });
+});
 
-  getAllBooks: async (req, res, next) => {
-    try {
-      const books = await Book.find();
-      res.status(200).json({
-        message: "Success to get all books !",
-        data: books,
-      });
-    } catch {
-      next(createError.InternalServerError("Fail to get all books !"));
-    }
-  },
+// Get all books
+const getAllBooks = catchAsync(async (req, res, next) => {
+  const books = await Book.find();
+  res.status(200).json({
+    message: "Success to get all books !",
+    data: books,
+  });
+});
 
-  updateBook: async (req, res, next) => {
-    try {
-      const book = await Book.findById(req.params.id);
-      await book.updateOne({ $set: req.body });
-      res.status(200).json({
-        message: "Success to update a book !",
-      });
-    } catch {
-      next(createError.InternalServerError("Fail to update a book !"));
-    }
-  },
+// Update a book
+const updateBook = catchAsync(async (req, res, next) => {
+  const book = await Book.findById(req.params.id);
+  if (!book) {
+    next(new ApiError(createError.NotFound("Book is not found !")));
+  }
+  if (!req.body) {
+    next(
+      new ApiError(createError.BadRequest("Please enter full information !"))
+    );
+  }
+  await book.updateOne({ $set: req.body });
+  res.status(200).json({
+    message: "Success to update a book !",
+  });
+});
+
+module.exports = {
+  addBook,
+  deleteBook,
+  getBook,
+  getAllBooks,
+  updateBook,
 };
 
-module.exports = bookController;
+Object.prototype.hasOwnProperty.call;

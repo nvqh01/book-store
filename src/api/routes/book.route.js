@@ -1,17 +1,16 @@
 import express from "express";
-
 import { bookController } from "../controllers/index";
-import token from "../services/token.service";
+import { verifyAccessToken } from "../services/token.service";
 
 const router = express.Router();
 
 router
-  .route("/")
+  .route(verifyAccessToken, "/")
   .post(bookController.addBook)
-  .get(token.verifyAccessToken, bookController.getAllBooks);
+  .get(bookController.getAllBooks);
 
 router
-  .route("/:id")
+  .route(verifyAccessToken, "/:id")
   .delete(bookController.deleteBook)
   .get(bookController.getBook)
   .put(bookController.updateBook);

@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
   },
 });
 
+// Encrypt user password
 userSchema.pre("save", async function (next) {
   try {
     const salt = await bcrypt.genSalt(12);
@@ -24,6 +25,7 @@ userSchema.pre("save", async function (next) {
   }
 });
 
+// Check user password valid
 userSchema.methods.isValidPassword = async function (password) {
   try {
     return await bcrypt.compare(password, this.password);

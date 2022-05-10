@@ -1,51 +1,54 @@
-import cors from "cors";
+import ApiError from "./api/helpers/ApiError";
 import bodyParser from "body-parser";
+import cors from "cors";
+import createError from "http-errors";
+import db from "./config/db.config";
 import dotenv from "dotenv";
 import express from "express";
 import helmet from "helmet";
-import createError from "http-errors";
 import morgan from "morgan";
-
-import db from "./config/db.config";
-import errorHandle from "./api/middlewares/errorHandle";
 import redis from "./config/redis.config";
 import router from "./api/routes/index";
+import { errorConverter, errorHandler } from "./api/middlewares/error";
 
 dotenv.config();
 
 const app = express();
 
-// connect database
+// Connect database
 db.connect(process.env.MONGODB_URL);
 redis.connect();
 
-// use cors
+// Use cors
 app.use(cors());
 
-// parse application/json
+// Parse application/json
 app.use(bodyParser.json("limit: 100MB"));
 
-//parse application/x-www-form-urlencoded
+// Parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
 
-// use helmet
+// Use helmet
 app.use(helmet());
 
-// use morgan
+// Use morgan
 app.use(morgan("common"));
 
-// routes
+// rRutes
 app.use("/api", router);
 
-// handle route not found
+// Handle route not found
 app.use((req, res, next) => {
-  next(createError.NotFound("This route is not found !"));
+  next(new ApiError(createError.NotFound("This route is not found !")));
 });
 
-// handle errors
-app.use(errorHandle);
+// Convert errors
+app.use(errorConverter);
 
-// use dotenv
+// Handle errors
+app.use(errorHandler);
+
+// Use dotenv
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
