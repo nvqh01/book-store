@@ -1,5 +1,6 @@
 import ApiError from "../helpers/ApiError";
 import createError from "http-errors";
+import logger from "../../config/logger";
 import mongoose from "mongoose";
 
 // Convert errors except ApiError
@@ -17,6 +18,7 @@ const errorConverter = (err, req, res, next) => {
 // Return errors to client in JSON
 const errorHandler = (err, req, res, next) => {
   const { statusCode, message, stack } = err;
+  logger.error(message);
   res.json({
     error: {
       statusCode,

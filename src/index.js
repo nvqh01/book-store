@@ -6,6 +6,7 @@ import db from "./config/db.config";
 import dotenv from "dotenv";
 import express from "express";
 import helmet from "helmet";
+import logger from "./config/logger";
 import morgan from "morgan";
 import redis from "./config/redis.config";
 import router from "./api/routes/index";
@@ -32,9 +33,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(helmet());
 
 // Use morgan
-app.use(morgan("common"));
+app.use(
+  morgan(":method :url :status :res[content-length] - :response-time ms", {
+    stream: logger.stream,
+  })
+);
 
-// rRutes
+// Routes
 app.use("/api", router);
 
 // Handle route not found
@@ -52,5 +57,5 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port: http://localhost:${PORT}`);
+  logger.info(`Server running on port: http://localhost:${PORT}`);
 });
