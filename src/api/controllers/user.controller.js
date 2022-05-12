@@ -1,7 +1,7 @@
 import ApiError from "../helpers/ApiError";
 import catchAsync from "../helpers/catchAsync";
 import createError from "http-errors";
-import { User } from "../models/index";
+import { User } from "../models";
 import { validateUser } from "../helpers/validate";
 import {
   deleteRefreshToken,

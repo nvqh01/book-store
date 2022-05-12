@@ -1,7 +1,7 @@
 import ApiError from "../helpers/ApiError";
 import catchAsync from "../helpers/catchAsync";
 import createError from "http-errors";
-import { Author, Book } from "../models/index";
+import { Author, Book } from "../models";
 
 // Add a author
 const addAuthor = catchAsync(async (req, res, next) => {

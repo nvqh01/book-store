@@ -6,7 +6,7 @@ const customeFormat = format.combine(
   format.printf((info) => {
     return `${
       info.timestamp
-    } --- [${info.level.toUpperCase()}] --- ${uuid()} --- ${info.message}`;
+    } --- [${info.level.toUpperCase()}] --- [${uuid()}] --- [${info.message.trim()}]`;
   })
 );
 
